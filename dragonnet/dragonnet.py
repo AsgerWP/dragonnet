@@ -3,9 +3,9 @@ import torch.nn as nn
 
 
 class MLPNet(nn.Module):
-    def __init__(self, covariate_size):
+    def __init__(self, n_covariates):
         super(MLPNet, self).__init__()
-        self.first_layer = nn.Linear(covariate_size + 1, 64)
+        self.first_layer = nn.Linear(n_covariates + 1, 64)
         self.first_activation_layer = nn.ReLU()
         self.second_layer = nn.Linear(64, 64)
         self.second_activation_layer = nn.ReLU()
