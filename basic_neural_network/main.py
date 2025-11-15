@@ -3,8 +3,8 @@ from torch import nn
 from torch import optim
 import numpy as np
 
-from dragonnet.dragonnet import MLPNet
-from dragonnet.generate_data import generate_data
+from basic_neural_network.dragonnet import MLPNet
+from basic_neural_network.generate_data import generate_data
 
 n = 1000
 n_covariates = 10
