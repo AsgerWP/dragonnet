@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class RegressionNet(nn.Module):
+class MLPNet(nn.Module):
     def __init__(self, n_covariates):
-        super(RegressionNet, self).__init__()
+        super(MLPNet, self).__init__()
         self.first_layer = nn.Linear(n_covariates + 1, 32)
         self.first_activation_layer = nn.ReLU()
         self.second_layer = nn.Linear(32, 32)
@@ -23,26 +23,6 @@ class RegressionNet(nn.Module):
 
 class RegressionLoss(nn.MSELoss):
     pass
-
-
-class RieszNet(nn.Module):
-    def __init__(self, n_covariates):
-        super(RieszNet, self).__init__()
-        self.first_layer = nn.Linear(n_covariates + 1, 32)
-        self.first_activation_layer = nn.ReLU()
-        self.second_layer = nn.Linear(32, 32)
-        self.second_activation_layer = nn.ReLU()
-        self.output_layer = nn.Linear(32, 1)
-        self.epsilon = nn.Parameter(torch.zeros(1))
-
-    def forward(self, covariates, treatments):
-        _input = torch.cat([covariates, treatments], dim=1)
-        hidden_state = self.first_layer(_input)
-        hidden_state = self.first_activation_layer(hidden_state)
-        hidden_state = self.second_layer(hidden_state)
-        hidden_state = self.second_activation_layer(hidden_state)
-        output = self.output_layer(hidden_state)
-        return output
 
 
 class RieszLoss(nn.Module):

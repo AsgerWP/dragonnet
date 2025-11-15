@@ -3,9 +3,8 @@ from torch import optim
 import numpy as np
 
 from basic_neural_network.neural_nets import (
-    RegressionNet,
+    MLPNet,
     RegressionLoss,
-    RieszNet,
     RieszLoss,
 )
 from basic_neural_network.generate_data import generate_data
@@ -19,13 +18,13 @@ l2_lambda = 0.3
 covariates, treatments, outcomes = generate_data(
     n, n_covariates, average_treatment_effect
 )
-regression_net = RegressionNet(n_covariates)
+regression_net = MLPNet(n_covariates)
 regression_criterion = RegressionLoss()  # squared error loss
 regression_optimizer = optim.Adam(
     regression_net.parameters(), lr=1e-3, weight_decay=l2_lambda
 )
 
-riesz_net = RieszNet(n_covariates)
+riesz_net = MLPNet(n_covariates)
 riesz_criterion = RieszLoss()
 riesz_optimizer = optim.Adam(riesz_net.parameters(), lr=1e-3, weight_decay=l2_lambda)
 
