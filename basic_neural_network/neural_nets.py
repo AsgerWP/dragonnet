@@ -54,4 +54,4 @@ class RieszLoss(nn.Module):
     ):
         square_term = actual_predictions**2
         plugin_term = full_treatment_predictions - no_treatment_predictions
-        return torch.mean(square_term + plugin_term)
+        return torch.mean(square_term - 2 * plugin_term)

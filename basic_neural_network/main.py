@@ -47,19 +47,12 @@ for epoch in range(n_epochs):
     actual_riesz, no_treatment_riesz, full_treatment_riesz = torch.split(
         all_outputs, n, dim=0
     )
-    riesz_loss = riesz_criterion(actual_riesz, no_treatment_riesz, full_treatment_riesz)
+    riesz_loss = riesz_criterion(actual_riesz, full_treatment_riesz, no_treatment_riesz)
     riesz_loss.backward()
     riesz_optimizer.step()
     if epoch % 20 == 0:
         print(f"Epoch {epoch}, Loss = {riesz_loss.item():.4f}")
 
-
-covariates, treatments, outcomes = generate_data(
-    n, n_covariates, average_treatment_effect
-)
-X = torch.cat([covariates, treatments], dim=1)
-X_no_treatment = torch.cat([covariates, torch.zeros_like(treatments)], dim=1)
-X_full_treatment = torch.cat([covariates, torch.ones_like(treatments)], dim=1)
 
 
 regression_net.eval()
