@@ -5,11 +5,11 @@ import torch.nn as nn
 class RegressionNet(nn.Module):
     def __init__(self, n_covariates):
         super(RegressionNet, self).__init__()
-        self.first_layer = nn.Linear(n_covariates + 1, 64)
+        self.first_layer = nn.Linear(n_covariates + 1, 32)
         self.first_activation_layer = nn.ReLU()
-        self.second_layer = nn.Linear(64, 64)
+        self.second_layer = nn.Linear(32, 32)
         self.second_activation_layer = nn.ReLU()
-        self.output_layer = nn.Linear(64, 1)
+        self.output_layer = nn.Linear(32, 1)
 
     def forward(self, _input):
         hidden_state = self.first_layer(_input)
@@ -27,11 +27,11 @@ class RegressionLoss(nn.MSELoss):
 class RieszNet(nn.Module):
     def __init__(self, n_covariates):
         super(RieszNet, self).__init__()
-        self.first_layer = nn.Linear(n_covariates + 1, 64)
+        self.first_layer = nn.Linear(n_covariates + 1, 32)
         self.first_activation_layer = nn.ReLU()
-        self.second_layer = nn.Linear(64, 64)
+        self.second_layer = nn.Linear(32, 32)
         self.second_activation_layer = nn.ReLU()
-        self.output_layer = nn.Linear(64, 1)
+        self.output_layer = nn.Linear(32, 1)
         self.epsilon = nn.Parameter(torch.zeros(1))
 
     def forward(self, _input):
@@ -44,10 +44,14 @@ class RieszNet(nn.Module):
 
 
 class RieszLoss(nn.Module):
-    @staticmethod
+
+    def __init__(self, lambda_l2=0.01):
+        super(RieszLoss, self).__init__()
+        self.lambda_l2 = lambda_l2
+
     def forward(
-        actual_predictions, full_treatment_predictions, no_treament_predictions
+        self, actual_predictions, full_treatment_predictions, no_treatment_predictions
     ):
         square_term = actual_predictions**2
-        plugin_term = full_treatment_predictions - no_treament_predictions
+        plugin_term = full_treatment_predictions - no_treatment_predictions
         return torch.mean(square_term + plugin_term)
