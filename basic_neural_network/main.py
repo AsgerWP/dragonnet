@@ -1,13 +1,17 @@
 import torch
-from torch import nn
 from torch import optim
 import numpy as np
 
-from basic_neural_network.neural_nets import RegressionNet, RegressionLoss
+from basic_neural_network.neural_nets import (
+    RegressionNet,
+    RegressionLoss,
+    RieszNet,
+    RieszLoss,
+)
 from basic_neural_network.generate_data import generate_data
 
 n = 1000
-n_covariates = 4
+n_covariates = 100
 average_treatment_effect = 3
 n_epochs = 1000
 
@@ -15,9 +19,17 @@ covariates, treatments, outcomes = generate_data(
     n, n_covariates, average_treatment_effect
 )
 X = torch.cat([covariates, treatments], dim=1)
+X_no_treatment = torch.cat([covariates, torch.zeros_like(treatments)], dim=1)
+X_full_treatment = torch.cat([covariates, torch.ones_like(treatments)], dim=1)
+
 regression_net = RegressionNet(n_covariates)
 regression_criterion = RegressionLoss()  # squared error loss
 regression_optimizer = optim.Adam(regression_net.parameters(), lr=1e-3)
+
+riesz_net = RieszNet(n_covariates)
+riesz_criterion = RieszLoss()
+riesz_optimizer = optim.Adam(riesz_net.parameters(), lr=1e-3)
+
 
 for epoch in range(n_epochs):
     regression_optimizer.zero_grad()
@@ -28,10 +40,23 @@ for epoch in range(n_epochs):
     if epoch % 20 == 0:
         print(f"Epoch {epoch}, Loss = {regression_loss.item():.4f}")
 
+    riesz_optimizer.zero_grad()
+    actual_riesz = riesz_net(X)
+    no_treatment_riesz = riesz_net(X_no_treatment)
+    full_treatment_riesz = riesz_net(X_full_treatment)
+    riesz_loss = riesz_criterion(actual_riesz, no_treatment_riesz, full_treatment_riesz)
+    riesz_loss.backward()
+    riesz_optimizer.step()
+    if epoch % 20 == 0:
+        print(f"Epoch {epoch}, Loss = {riesz_loss.item():.4f}")
+
 regression_net.eval()
-no_treatment_counterfactuals = torch.cat([covariates, torch.zeros_like(treatments)], dim=1)
-treatment_counterfactuals = torch.cat([covariates, torch.ones_like(treatments)], dim=1)
+riesz_net.eval()
 with torch.no_grad():
-    Y0 = regression_net(no_treatment_counterfactuals).numpy()
-    Y1 = regression_net(treatment_counterfactuals).numpy()
+    Y0 = regression_net(X_no_treatment).numpy()
+    Y1 = regression_net(X_full_treatment).numpy()
+    residual = outcomes.numpy() - regression_net(X).numpy()
+    riesz = riesz_net(X).numpy()
+
     print(np.mean(Y1 - Y0))
+    print(np.mean(Y1 - Y0 + residual * riesz))

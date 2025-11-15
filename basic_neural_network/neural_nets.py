@@ -41,3 +41,13 @@ class RieszNet(nn.Module):
         hidden_state = self.second_activation_layer(hidden_state)
         output = self.output_layer(hidden_state)
         return output
+
+
+class RieszLoss(nn.Module):
+    @staticmethod
+    def forward(
+        actual_predictions, full_treatment_predictions, no_treament_predictions
+    ):
+        square_term = actual_predictions**2
+        plugin_term = full_treatment_predictions - no_treament_predictions
+        return torch.mean(square_term + plugin_term)
