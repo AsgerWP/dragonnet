@@ -13,8 +13,8 @@ from basic_neural_network.generate_data import generate_data
 n = 1000
 n_covariates = 100
 average_treatment_effect = 3
-n_epochs = 100
-l2_lambda = 0.1
+n_epochs = 1000
+l2_lambda = 0.3
 
 covariates, treatments, outcomes = generate_data(
     n, n_covariates, average_treatment_effect
@@ -52,6 +52,15 @@ for epoch in range(n_epochs):
     riesz_optimizer.step()
     if epoch % 20 == 0:
         print(f"Epoch {epoch}, Loss = {riesz_loss.item():.4f}")
+
+
+covariates, treatments, outcomes = generate_data(
+    n, n_covariates, average_treatment_effect
+)
+X = torch.cat([covariates, treatments], dim=1)
+X_no_treatment = torch.cat([covariates, torch.zeros_like(treatments)], dim=1)
+X_full_treatment = torch.cat([covariates, torch.ones_like(treatments)], dim=1)
+
 
 regression_net.eval()
 riesz_net.eval()
