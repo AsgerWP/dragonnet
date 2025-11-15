@@ -11,7 +11,8 @@ class RegressionNet(nn.Module):
         self.second_activation_layer = nn.ReLU()
         self.output_layer = nn.Linear(32, 1)
 
-    def forward(self, _input):
+    def forward(self, covariates, treatments):
+        _input = torch.cat([covariates, treatments], dim=1)
         hidden_state = self.first_layer(_input)
         hidden_state = self.first_activation_layer(hidden_state)
         hidden_state = self.second_layer(hidden_state)
@@ -34,7 +35,8 @@ class RieszNet(nn.Module):
         self.output_layer = nn.Linear(32, 1)
         self.epsilon = nn.Parameter(torch.zeros(1))
 
-    def forward(self, _input):
+    def forward(self, covariates, treatments):
+        _input = torch.cat([covariates, treatments], dim=1)
         hidden_state = self.first_layer(_input)
         hidden_state = self.first_activation_layer(hidden_state)
         hidden_state = self.second_layer(hidden_state)
